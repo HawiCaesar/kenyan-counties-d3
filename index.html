@@ -19,6 +19,35 @@ path:hover, path.highlighted {
   fill: #70bad6;
 }
 
+.zoom-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: white;
+  border: 1px solid #999;
+  border-radius: 3px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+}
+
+.zoom-button {
+  display: block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.zoom-button:first-child {
+  border-bottom: 1px solid #ccc;
+}
+
+.zoom-button:hover {
+  background-color: #f4f4f4;
+}
+
 div.tooltip {
   position: absolute;
   background-color: white;
@@ -66,10 +95,30 @@ var zoom = d3.behavior.zoom()
 
 svg.call(zoom);
 
+//Create zoom controls
+var zoomControls = d3.select("body").append("div")
+    .attr("class", "zoom-controls");
+
+zoomControls.append("div")
+    .attr("class", "zoom-button")
+    .text("+")
+    .on("click", function() {
+        zoom.scale(zoom.scale() * 1.5);
+        zoom.event(svg);
+    });
+
+zoomControls.append("div")
+    .attr("class", "zoom-button")
+    .text("−")  // This is an en dash, not a regular minus
+    .on("click", function() {
+        zoom.scale(zoom.scale() * 0.75);
+        zoom.event(svg);
+    });
+
 //Create a tooltip, hidden at the start
 var tooltip = d3.select("body").append("div").attr("class","tooltip");
 
-d3.json("https://gist.githubusercontent.com/baderone/d414db9893fc2de839e8/raw/c0cfcb1d76ffff8be32014d8a80a07986d5d6c38/County.topojson",function(error,geodata) {
+d3.json("https://raw.githubusercontent.com/HawiCaesar/kenyan-counties-d3/refs/heads/master/County.topojson",function(error,geodata) {
   if (error) return console.log(error); //unknown error, check the console
 
   //Create a path for each map feature in the data

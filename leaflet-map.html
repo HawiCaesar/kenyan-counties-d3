@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <!-- Include Leaflet CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        path:focus {
+            outline: none;
+        }
+        path:focus {
+            fill: #70bad6;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Initialize the map centered on Kenya
+        const map = L.map('map').setView([0.365617420613853, 37.90903854349415], 6);
+
+        // Add a simple tile layer with very low opacity
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            opacity: 0.3  // Make the base map very faint
+        }).addTo(map);
+
+        // Load your existing County.topojson file
+        fetch('https://raw.githubusercontent.com/HawiCaesar/kenyan-counties-d3/refs/heads/master/County.topojson')
+            .then(response => response.json())
+            .then(data => {
+                // Convert TopoJSON to GeoJSON
+                const counties = topojson.feature(data, data.objects.collection);
+                
+                // Add the GeoJSON layer
+                L.geoJSON(counties, {
+                    style: function(feature) {
+                        return {
+                            fillColor: 'steelblue',
+                            weight: 1,
+                            opacity: 1,
+                            color: 'white',
+                            fillOpacity: 0.7
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        // Add popup or tooltip
+                        layer.bindTooltip(feature.properties.COUNTY, {
+                            sticky: true
+                        });
+
+                        // Add hover effect
+                        layer.on({
+                            mouseover: function(e) {
+                                const layer = e.target;
+                                layer.setStyle({
+                                    fillColor: '#70bad6'
+                                });
+                            },
+                            mouseout: function(e) {
+                                const layer = e.target;
+                                layer.setStyle({
+                                    fillColor: 'steelblue'
+                                });
+                            }
+                        });
+                    }
+                }).addTo(map);
+            });
+    </script>
+</body>
+</html> 
